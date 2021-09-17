@@ -1,5 +1,5 @@
-$OU1 = "AdminSV"
-$OU2 = "EVPA"
+$OU1 = "Dept"
+$OU2 = "New_Name_Dept"
 
 
 $OUInfo1 = Get-ADOrganizationalUnit "OU=Users,OU=AdminSV,DC=campusad,DC=msu,DC=edu"

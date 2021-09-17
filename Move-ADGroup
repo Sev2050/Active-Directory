@@ -1,0 +1,48 @@
+$OU1 = "Dept"
+$OU2 = "New_Name_Dept"
+
+$OUInfo2 = Get-ADOrganizationalUnit "OU=Groups,OU=AdminSV,DC=campusad,DC=msu,DC=edu"
+$OUInfo1 = Get-ADOrganizationalUnit "OU=Groups,OU=EVPA,DC=campusad,DC=msu,DC=edu"
+$ADGroups = Get-ADGroup -SearchBase $OUInfo1 -Filter * -Properties ProxyAddresses,mail,Department,displayName
+$Department = "Office of the Executive Vice President for Administration"
+
+Foreach ($ADGroup in $ADGroups)
+{
+ 
+
+    #Setting variable for correcting the Common Name so that the Distinguished Name will reflect changes
+    $CorrectedName = $ADGroup.Name.Replace($OU1,$OU2)
+
+
+    #Setting to variable for removing old OU name from UserPrincipalName
+    $CorrectedSamAccountName = $ADGroup.SamAccountName.Replace($OU1,$OU2)
+
+    #Setting to variable for removing old OU name from UserPrincipalName
+    $CorrectedDisplayName = $ADGroup.DisplayName.Replace($OU1,$OU2)
+
+    
+    #Set new email address
+    $CorrectEmailAddress = $ADGroup.mail.Replace($OU1,$Ou2)
+
+    #Rename the AD Group
+    Set-ADGroup -Identity $ADGroup -DisplayName $CorrectedDisplayName -SamAccountName $CorrectedSamAccountName -Replace @{mail=$CorrectEmailAddress} -add @{ProxyAddresses="smtp:$CorrectEmailAddress"} #-Department $Department
+
+    #Removing from the account for the Common Name
+    $NewName = $ADGroup | Rename-ADObject -NewName $CorrectedName -PassThru
+
+    #Note of accounts being modified
+    $OutputCorrectedAccounts += $NewName.Name
+
+    
+    Start-Sleep -Second 1
+
+        #Move AD Group Object
+   # Move-ADObject -Identity $NewName -TargetPath $OUInfo2
+      Start-Sleep -Second 1
+$CorrectEmailAddress = @()
+$CorrectedName = @()
+$CorrectedSamAccountName = @()
+$CorrectedDisplayName = @()
+
+
+}
